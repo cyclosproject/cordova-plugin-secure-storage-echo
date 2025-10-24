@@ -2,6 +2,7 @@
 This plugin is used for Android & iOS.
 Was patched to make optional (with a parameter) whether the user authentication is required or not to access the (private) key, thus avoiding requiring to have defined a screen lock in Android (for iOS there is not such requirement).
 
+The `userAuthentication` parameter can be set when creating the secure storage as an [Android Init Options](#android-init-options). Default to false.
 # SecureStorage plugin for Apache Cordova
 
 [![NPM](https://nodei.co/npm/cordova-plugin-secure-storage-echo.png?mini=true)](https://nodei.co/npm/cordova-plugin-secure-storage-echo/)
