@@ -80,6 +80,8 @@ public class SecureStorage extends CordovaPlugin {
             JSONObject options = args.getJSONObject(1);
 
             String packageName = options.optString("packageName", getContext().getPackageName());
+            boolean userAuthentication = options.optBoolean("userAuthentication", false);
+
 
             Context ctx = null;
 
@@ -98,16 +100,16 @@ public class SecureStorage extends CordovaPlugin {
             String alias = service2alias(service);
             INIT_SERVICE = service;
 
-            SharedPreferencesHandler PREFS = new SharedPreferencesHandler(alias, ctx);
+            SharedPreferencesHandler PREFS = new SharedPreferencesHandler(alias, ctx, userAuthentication);
             SERVICE_STORAGE.put(service, PREFS);
-            if (!isDeviceSecure()) {
+            if (userAuthentication && !isDeviceSecure()) {
                 Log.e(TAG, MSG_DEVICE_NOT_SECURE);
                 callbackContext.error(MSG_DEVICE_NOT_SECURE);
             } else if (!rsa.encryptionKeysAvailable(alias)) {
                 // Encryption Keys aren't available, proceed to generate them
                 Integer userAuthenticationValidityDuration = options.optInt("userAuthenticationValidityDuration", DEFAULT_AUTHENTICATION_VALIDITY_TIME);
                 generateKeysContext = callbackContext;
-                generateEncryptionKeys(userAuthenticationValidityDuration);
+                generateEncryptionKeys(userAuthenticationValidityDuration, userAuthentication);
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                     unlockCredentialsLegacy();
                 }
@@ -175,10 +177,13 @@ public class SecureStorage extends CordovaPlugin {
             return true;
         }
         if ("secureDevice".equals(action)) {
-            // Open the Security Settings screen. The app developer should inform the user about
-            // the security requirements of the app and initialize again after the user has changed the screen-lock settings
-            secureDeviceContext = callbackContext;
-            secureDevice();
+            // If user authentication is not required, then the screen lock not required
+            if (getStorage(INIT_SERVICE).isUserAuthentication()) {            
+                // Open the Security Settings screen. The app developer should inform the user about
+                // the security requirements of the app and initialize again after the user has changed the screen-lock settings
+                secureDeviceContext = callbackContext;
+                secureDevice();
+            }
             return true;
         }
         if ("remove".equals(action)) {
@@ -266,7 +271,7 @@ public class SecureStorage extends CordovaPlugin {
      *
      * @param userAuthenticationValidityDuration User authentication validity duration in seconds
      */
-    private void generateEncryptionKeys(Integer userAuthenticationValidityDuration) {
+    private void generateEncryptionKeys(Integer userAuthenticationValidityDuration, boolean userAuthentication) {
         if (generateKeysContext != null && !generateKeysContextRunning) {
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
@@ -276,7 +281,7 @@ public class SecureStorage extends CordovaPlugin {
                         SharedPreferencesHandler storage = getStorage(INIT_SERVICE);
                         //Solves Issue #96. The RSA key may have been deleted by changing the lock type.
                         getStorage(INIT_SERVICE).clear();
-                        rsa.createKeyPair(getContext(), alias, userAuthenticationValidityDuration);
+                        rsa.createKeyPair(getContext(), alias, userAuthenticationValidityDuration, userAuthentication);
                         generateKeysContext.success();
                     } catch (Exception e) {
                         Log.e(TAG, MSG_KEYS_FAILED, e);

@@ -9,10 +9,18 @@ import android.content.Context;
 
 public class SharedPreferencesHandler {
 	private SharedPreferences prefs;
+    // Whether to require user authentication when accessing this storage
+    // If true, a screen lock must be set on the device
+    private boolean userAuthentication;
 
-	public SharedPreferencesHandler (String prefsName, Context ctx){
+	public SharedPreferencesHandler (String prefsName, Context ctx, boolean userAuthentication){
 		prefs = ctx.getSharedPreferences(prefsName  + "_SS", 0);
+		this.userAuthentication = userAuthentication;
 	}
+
+    boolean isUserAuthentication() {
+        return userAuthentication;
+    }
 
 	boolean isEmpty() {
 	    return prefs.getAll().isEmpty();

@@ -19,7 +19,7 @@ public abstract class AbstractRSA {
     private final Cipher CIPHER = getCipher();
 
 
-    abstract AlgorithmParameterSpec getInitParams(Context ctx, String alias, Integer userAuthenticationValidityDuration) throws Exception;
+    abstract AlgorithmParameterSpec getInitParams(Context ctx, String alias, Integer userAuthenticationValidityDuration, boolean userAuthentication) throws Exception;
 
     boolean encryptionKeysAvailable(String alias) {
         return isEntryAvailable(alias);
@@ -49,8 +49,8 @@ public abstract class AbstractRSA {
         }
     }
 
-    public void createKeyPair(Context ctx, String alias, Integer userAuthenticationValidityDuration) throws Exception {
-        AlgorithmParameterSpec spec = getInitParams(ctx, alias, userAuthenticationValidityDuration);
+    public void createKeyPair(Context ctx, String alias, Integer userAuthenticationValidityDuration, boolean userAuthentication) throws Exception {
+        AlgorithmParameterSpec spec = getInitParams(ctx, alias, userAuthenticationValidityDuration, userAuthentication);
         KeyPairGenerator kpGenerator = KeyPairGenerator.getInstance(getRSAKey(), KEYSTORE_PROVIDER);
         kpGenerator.initialize(spec);
         kpGenerator.generateKeyPair();

@@ -36,7 +36,7 @@ public class RSA extends AbstractRSA {
 
     @Override
     @TargetApi(Build.VERSION_CODES.M)
-    public AlgorithmParameterSpec getInitParams(Context ctx, String alias, Integer userAuthenticationValidityDuration) {
+    public AlgorithmParameterSpec getInitParams(Context ctx, String alias, Integer userAuthenticationValidityDuration, boolean userAuthentication) {
         Calendar notAfter = Calendar.getInstance();
         notAfter.add(Calendar.YEAR, CERT_VALID_YEARS);
 
@@ -45,7 +45,7 @@ public class RSA extends AbstractRSA {
                 .setCertificateNotBefore(Calendar.getInstance().getTime())
                 .setCertificateNotAfter(notAfter.getTime())
                 .setAlgorithmParameterSpec(new RSAKeyGenParameterSpec(2048, RSAKeyGenParameterSpec.F4))
-                .setUserAuthenticationRequired(true)
+                .setUserAuthenticationRequired(userAuthentication)
                 .setUserAuthenticationValidityDurationSeconds(userAuthenticationValidityDuration)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1)
                 .setBlockModes(KeyProperties.BLOCK_MODE_ECB)

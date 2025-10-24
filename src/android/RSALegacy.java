@@ -25,7 +25,7 @@ public class RSALegacy extends AbstractRSA {
 
     @Override
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public AlgorithmParameterSpec getInitParams(Context ctx, String alias, Integer userAuthenticationValidityDuration) throws Exception {
+    public AlgorithmParameterSpec getInitParams(Context ctx, String alias, Integer userAuthenticationValidityDuration, boolean userAuthentication) throws Exception {
         Calendar notAfter = Calendar.getInstance();
         notAfter.add(Calendar.YEAR, CERT_VALID_YEARS);
 
